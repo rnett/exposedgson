@@ -51,6 +51,8 @@ However, these are both changeable; see `@JsonUseAsID` and `@JsonDatabaseIdField
 
 Changes made in the JSON will not be reflected in the parsed object or in the database (this is something I may add in the future).
 
+**Note that seraliziation and parsing must be done inside Exposed transactions.**
+
 ## Annotations
 
 Exposed GSON provides a number of annotations to customize the JSON representation of the entity.
