@@ -25,7 +25,7 @@ The JSON will only include declared fields, along with a database id.
 By default, this id is the `id` property of the `Entity` superclass, and is stored in the JSON field `$$database_id$$`.
 However, these are both changeable; see `@JsonUseAsID` and `@JsonDatabaseIdField`.
 
-**When parsing JSON, Exposed GSON only looks at the database id, and pulls the entity from the database.**
+**When parsing JSON, Exposed GSON only looks at the database id, then pulls the entity from the database.**
 
 Changes made in the JSON will not be reflected in the parsed object or in the database (this is something I may add in the future).
 
