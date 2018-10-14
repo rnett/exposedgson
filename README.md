@@ -9,6 +9,26 @@ It should work properly on valid DAO classes.
 
 Issues and improvements are welcome.
 
+## Install
+
+Exposed GSON can be included using [JitPack](https://jitpack.io/#rnett/exposedgson).
+
+### Gradle
+In gradle (kotlin script), it would look like this:
+```kotlin
+repositories {
+    ...
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    ...
+    implementation("com.github.rnett:exposedgson:1.0.0")
+}
+```
+
+For other build tools, see the [JitPack site](https://jitpack.io/#rnett/exposedgson).
+
 ## Usage
 To use with a Exposed DAO class, add the annotation `@JsonAdapter(ExposedTypeAdapter::class)`.
 E.x.:
