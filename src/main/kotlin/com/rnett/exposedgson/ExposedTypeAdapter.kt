@@ -24,12 +24,14 @@ class ExposedTypeAdapter : TypeAdapterFactory {
     override fun <T : Any?> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
 
         // if this is not a DAO class, don't provide a TypeAdapter
+        @Suppress("UNCHECKED_CAST")
         if(!Entity::class.isSuperclassOf((type.rawType as Class<Any>).kotlin))
             return null
 
         return object : TypeAdapter<T>() {
 
             // The class of the DAO
+            @Suppress("UNCHECKED_CAST")
             val klass = (type.rawType as Class<Any>).kotlin
 
             // The properties to be included in the JSON
@@ -54,16 +56,16 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             val customId : KProperty1<Any, *>?
             init{
                 val ids = klass.declaredMemberProperties.filter{ it.findAnnotation<JsonUseAsID>() != null }
-                if(ids.count() > 1)
+                customId = if (ids.count() > 1)
                     throw IllegalArgumentException("More than one column specified as the database id (with @JsonUseAsID)")
                 else if(ids.count() > 0 && customDBIdName != TABLE_ID_NAME)
                     throw IllegalArgumentException("Can not specify Database ID Name (with @JsonDatabaseIdField) and a database id column (with @JsonUseAsID)")
                 else if(ids.count() == 1 && ids.first().findAnnotation<JsonIgnore>() != null)
                     throw IllegalArgumentException("Can not use @JsonUseAsID and @JsonIgnore on the same field.")
                 else if(ids.count() == 1)
-                    customId = ids.first()
+                    ids.first()
                 else
-                    customId = null
+                    null
             }
 
             // the name of the database id field
@@ -76,7 +78,11 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             val entityCompanion = klass.companionObject!!
 
             // the findById function in the companion.
-            val findById = entityCompanion.memberFunctions.first{ it.name == "findById" && "EntityID" !in it.valueParameters.first{ it.index == 1 }.type.toString() }
+            val findById = entityCompanion.memberFunctions
+                .first {
+                    it.name == "findById" &&
+                            "EntityID" !in it.valueParameters.first { param -> param.index == 1 }.type.toString()
+                }
 
             // get the name of a property, using @JsonName if present
             fun propertyName(prop: KProperty1<Any, *>) = prop.findAnnotation<JsonName>()?.name ?: prop.name
@@ -84,7 +90,7 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             override fun write(out: JsonWriter, value: T) {
                 out.beginObject()
 
-                // create the special id column if nessecary
+                // create the special id column if necessary
                 if(useSpecialDbId) {
                     out.name(dbIdName)
 
@@ -126,6 +132,7 @@ class ExposedTypeAdapter : TypeAdapterFactory {
 
                 //TODO update fields from json
 
+                @Suppress("UNCHECKED_CAST")
                 return entity as T?
             }
         }
