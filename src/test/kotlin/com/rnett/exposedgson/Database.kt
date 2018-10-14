@@ -32,8 +32,11 @@ class account(id: EntityID<Int>) : IntEntity(id) {
 
     @JsonUseAsID
     val accountid by accounts.accountid
+
     @JsonName("this_email")
     var email by accounts.email
+
+    @JsonIgnore
     var pwhash by accounts.pwhash
     var type by accounts.type
 
