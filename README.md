@@ -42,7 +42,9 @@ class account(id: EntityID<Int>) : IntEntity(id){
 Then, if you use `Gson().toJson()` (or any other serialization methods) on an instance of your entity,
 it will be serialized using Exposed GSON's type adapter.
 
-The JSON will only include declared fields, along with a database id.
+The JSON will only include declared properties, along with a database id.
+
+**Note that it will also include properties that wouldn't normally show up in GSON JSON data.**
 
 By default, this id is the `id` property of the `Entity` superclass, and is stored in the JSON field `$$database_id$$`.
 However, these are both changeable; see `@JsonUseAsID` and `@JsonDatabaseIdField`.
