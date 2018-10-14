@@ -34,7 +34,7 @@ Changes made in the JSON will not be reflected in the parsed object or in the da
 Exposed GSON provides a number of annotations to customize the JSON representation of the entity.
 These are `@JsonName`, `@JsonIgnore`, `@JsonUseAsID`, and `@JsonDatabaseIdField`.
 
-##### @JsonName
+#### @JsonName
 
 `@JsonName` can be applied to properties.
 It takes a string as a parameter, and uses that string as the property name in the JSON.
@@ -45,7 +45,7 @@ var email by accounts.email
 ```
 `email` will then be represented by the JSON field `this_email`.
 
-##### @JsonIgnore
+#### @JsonIgnore
 
 `@JsonIgnore` can be applied to properties.
 It is simple: if it is present, the property will not be included in the JSON.
@@ -56,7 +56,7 @@ var pwHash by accounts.pwHash
 ```
 `pwHash` will then not be included in the JSON.
 
-##### @JsonUseAsID
+#### @JsonUseAsID
 
 `@JsonUseAsID` can be applied to properties (only one per class).
 It tells Exposed GSON to use that property as the entity id when creating the object.
@@ -94,7 +94,7 @@ class account(id: EntityID<Int>) : IntEntity(id) {
 
 Note that `accountid` is the primary key of the table, and is the correct type for `findById`
 
-##### @JsonDatabaseIdField
+#### @JsonDatabaseIdField
 `@JsonDatabaseIdField` can be applied to the DAO class.
 It is meaningless unless `@JsonAdapter(ExposedTypeAdapter::class)` is also used.
 
