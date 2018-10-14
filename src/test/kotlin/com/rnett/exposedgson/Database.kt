@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
+import org.jetbrains.exposed.sql.transactions.transaction
 
 enum class AccountType{
     Customer, Employee, Admin;
@@ -30,16 +31,19 @@ class account(id: EntityID<Int>) : IntEntity(id) {
 
     // Database Columns
 
+    // use accountid as the database id (after all, it is the primary key)
     @JsonUseAsID
     val accountid by accounts.accountid
 
+    // store email as "this_email" in the JSON
     @JsonName("this_email")
     var email by accounts.email
 
+    // don't include pwhash in the JSON
     @JsonIgnore
     var pwhash by accounts.pwhash
-    var type by accounts.type
 
+    var type by accounts.type
 
     // Helper Methods
 

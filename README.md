@@ -61,7 +61,7 @@ var pwHash by accounts.pwHash
 `@JsonUseAsID` can be applied to properties (only one per class).
 It tells Exposed GSON to use that property as the entity id when creating the object.
 
-**When parsing JSON, Exposed GSON will pass the value of this property to the entity class's `findByID` method to generate the entity from the database.**
+**When parsing JSON, Exposed GSON will pass the value of this property to the entity class's `findById` method to generate the entity from the database.**
 Make sure this is the intended behavior.
 
 When this annotation is present, Exposed GSON will not create a separate database id field in the JSON.
@@ -92,7 +92,7 @@ class account(id: EntityID<Int>) : IntEntity(id) {
 
 `accountid` will then be used in place of the special id field in the JSON.
 
-Note that `accountid` is the primary key of the table, and is the correct type for `findByID`
+Note that `accountid` is the primary key of the table, and is the correct type for `findById`
 
 ##### @JsonDatabaseIdField
 `@JsonDatabaseIdField` can be applied to the DAO class.
