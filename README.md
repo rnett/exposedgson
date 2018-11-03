@@ -45,7 +45,7 @@ it will be serialized using Exposed GSON's type adapter.
 The JSON will only include declared fields, along with a database id.
 
 By default, this id is the `id` property of the `Entity` superclass, and is stored in the JSON field `$$database_id$$`.
-However, these are both changeable; see `@JsonUseAsID` and `@JsonDatabaseIdField`.
+However, these are both changeable; see `@ExposedGSON.UseAsID` and `@ExposedGSON.JsonDatabaseIdField`.
 
 **When parsing JSON, Exposed GSON only looks at the database id, then pulls the entity from the database.**
 
@@ -56,33 +56,33 @@ Changes made in the JSON will not be reflected in the parsed object or in the da
 ## Annotations
 
 Exposed GSON provides a number of annotations to customize the JSON representation of the entity.
-These are `@JsonName`, `@JsonIgnore`, `@JsonUseAsID`, and `@JsonDatabaseIdField`.
+These are `@ExposedGSON.JsonName`, `@ExposedGSON.Ignore`, `@ExposedGSON.UseAsID`, and `@ExposedGSON.JsonDatabaseIdField`.
 
-### @JsonName
+### @ExposedGSON.JsonName
 
-`@JsonName` can be applied to properties.
+`@ExposedGSON.JsonName` can be applied to properties.
 It takes a string as a parameter, and uses that string as the property name in the JSON.
 E.x.:
 ```kotlin
-@JsonName("this_email")
+@ExposedGSON.JsonName("this_email")
 var email by accounts.email
 ```
 `email` will then be represented by the JSON field `this_email`.
 
-### @JsonIgnore
+### @ExposedGSON.Ignore
 
-`@JsonIgnore` can be applied to properties.
+`@ExposedGSON.Ignore` can be applied to properties.
 It is simple: if it is present, the property will not be included in the JSON.
 E.x.:
 ```kotlin
-@JsonIgnore
+@ExposedGSON.Ignore
 var pwHash by accounts.pwHash
 ```
 `pwHash` will then not be included in the JSON.
 
-### @JsonUseAsID
+### @ExposedGSON.UseAsID
 
-`@JsonUseAsID` can be applied to properties (only one per class).
+`@ExposedGSON.UseAsID` can be applied to properties (only one per class).
 It tells Exposed GSON to use that property as the entity id when creating the object.
 
 **When parsing JSON, Exposed GSON will pass the value of this property to the entity class's `findById` method to generate the entity from the database.**
@@ -92,7 +92,7 @@ When this annotation is present, Exposed GSON will not create a separate databas
 
 If this annotation is present more than once in a class, an exception will be thrown.
 
-This annotation will work with `@JsonName`.
+This annotation will work with `@ExposedGSON.JsonName`.
 
 E.x.:
 ```kotlin
@@ -107,7 +107,7 @@ object accounts : IntIdTable("accounts", "accountid") {
 
 @JsonAdapter(ExposedTypeAdapter::class)
 class account(id: EntityID<Int>) : IntEntity(id) {
-    @JsonUseAsID
+    @ExposedGSON.UseAsID
     val accountid by accounts.accountid
 
     ...
@@ -118,18 +118,18 @@ class account(id: EntityID<Int>) : IntEntity(id) {
 
 Note that `accountid` is the primary key of the table, and is the correct type for `findById`
 
-### @JsonDatabaseIdField
-`@JsonDatabaseIdField` can be applied to the DAO class.
+### @ExposedGSON.JsonDatabaseIdField
+`@ExposedGSON.JsonDatabaseIdField` can be applied to the DAO class.
 It is meaningless unless `@JsonAdapter(ExposedTypeAdapter::class)` is also used.
 
-`@JsonDatabaseIdField` takes a string, and uses that string as the name of the special id field in the JSON (instead of `$$database_id$$`).
+`@ExposedGSON.JsonDatabaseIdField` takes a string, and uses that string as the name of the special id field in the JSON (instead of `$$database_id$$`).
 
-If both `@JsonDatabaseIdField` and `@JsonUseAsID` are present, an exception will be thrown.
+If both `@ExposedGSON.JsonDatabaseIdField` and `@ExposedGSON.UseAsID` are present, an exception will be thrown.
 
 E.x.:
 ```kotlin
 @JsonAdapter(ExposedTypeAdapter::class)
-@JsonDatabaseIdField("this_id")
+@ExposedGSON.JsonDatabaseIdField("this_id")
 class account(id: EntityID<Int>) : IntEntity(id) {
     ...
 }

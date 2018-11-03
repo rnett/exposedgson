@@ -2,6 +2,7 @@ package com.rnett.exposedgson
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
+import com.rnett.exposedgson.database.account
 import org.apache.commons.dbcp.BasicDataSource
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,7 +20,7 @@ fun connectToDB(){
 fun main(args: Array<String>) {
     connectToDB()
 
-    val account = transaction{account.all().first()}
+    val account = transaction { account.all().first() }
 
     val gson = transaction{ Gson().toJson(account)}
     println(gson)

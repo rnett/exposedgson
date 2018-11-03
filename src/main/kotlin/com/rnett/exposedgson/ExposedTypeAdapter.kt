@@ -3,12 +3,14 @@ package com.rnett.exposedgson
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import com.google.gson.TypeAdapterFactory
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.sql.SizedIterable
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.*
 
@@ -35,15 +37,16 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             val klass = (type.rawType as Class<Any>).kotlin
 
             // The properties to be included in the JSON
-            val properties = klass.declaredMemberProperties.filter{ it.findAnnotation<Transient>() == null && it.findAnnotation<JsonIgnore>() == null }
+            //TODO work with delegates
+            val properties = klass.declaredMemberProperties.toExposedProperties<T>()
 
             // The id property (from Entity)
             val id = klass.memberProperties.first { it.name == "id" }
 
             // the custom name for the database id field, or default
             val customDBIdName = run {
-                val name = klass.findAnnotation<JsonDatabaseIdField>()?.fieldName ?: TABLE_ID_NAME
-                if(name in properties.map { propertyName((it)) })
+                val name = klass.findAnnotation<ExposedGSON.JsonDatabaseIdField>()?.fieldName ?: TABLE_ID_NAME
+                if (name in properties.map { it.name })
                     if(name == TABLE_ID_NAME)
                         throw IllegalArgumentException("Property can not have name of default database id: $TABLE_ID_NAME")
                     else
@@ -55,13 +58,13 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             // the custom column to use as the database id
             val customId : KProperty1<Any, *>?
             init{
-                val ids = klass.declaredMemberProperties.filter{ it.findAnnotation<JsonUseAsID>() != null }
+                val ids = klass.declaredMemberProperties.filter { it.findAnnotation<ExposedGSON.UseAsID>() != null }
                 customId = if (ids.count() > 1)
-                    throw IllegalArgumentException("More than one column specified as the database id (with @JsonUseAsID)")
+                    throw IllegalArgumentException("More than one column specified as the database id (with @UseAsID)")
                 else if(ids.count() > 0 && customDBIdName != TABLE_ID_NAME)
-                    throw IllegalArgumentException("Can not specify Database ID Name (with @JsonDatabaseIdField) and a database id column (with @JsonUseAsID)")
-                else if(ids.count() == 1 && ids.first().findAnnotation<JsonIgnore>() != null)
-                    throw IllegalArgumentException("Can not use @JsonUseAsID and @JsonIgnore on the same field.")
+                    throw IllegalArgumentException("Can not specify Database ID Name (with @JsonDatabaseIdField) and a database id column (with @UseAsID)")
+                else if (ids.count() == 1 && ids.first().findAnnotation<ExposedGSON.Ignore>() != null)
+                    throw IllegalArgumentException("Can not use @UseAsID and @Ignore on the same field.")
                 else if(ids.count() == 1)
                     ids.first()
                 else
@@ -69,7 +72,7 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             }
 
             // the name of the database id field
-            val dbIdName = customId?.let(::propertyName) ?: customDBIdName
+            val dbIdName = if (customId != null) ExposedJsonField<T>(customId).name else customDBIdName
 
             // whether to create a special id field
             val useSpecialDbId = customId == null
@@ -84,9 +87,6 @@ class ExposedTypeAdapter : TypeAdapterFactory {
                             "EntityID" !in it.valueParameters.first { param -> param.index == 1 }.type.toString()
                 }
 
-            // get the name of a property, using @JsonName if present
-            fun propertyName(prop: KProperty1<Any, *>) = prop.findAnnotation<JsonName>()?.name ?: prop.name
-
             override fun write(out: JsonWriter, value: T) {
                 out.beginObject()
 
@@ -100,9 +100,9 @@ class ExposedTypeAdapter : TypeAdapterFactory {
 
                 // add properties
                 properties.forEach {
-                    out.name(propertyName(it))
+                    out.name(it.name)
 
-                    out.jsonValue(gson.toJson(it.get(value as Any)))
+                    out.jsonValue(gson.toJson(it.get(value)))
                 }
 
                 out.endObject()
@@ -137,4 +137,23 @@ class ExposedTypeAdapter : TypeAdapterFactory {
             }
         }
     }
+}
+
+private fun <T> Iterable<KProperty1<Any, *>>.toExposedProperties() =
+    this.map { ExposedJsonField<T>(it) }.filter { it.use }
+
+private data class ExposedJsonField<T>(val property: KProperty1<Any, *>) {
+    val use = property.findAnnotation<Transient>() == null && property.findAnnotation<ExposedGSON.Ignore>() == null
+    val name = property.findAnnotation<ExposedGSON.JsonName>()?.name ?: property.findAnnotation<SerializedName>()?.value
+    ?: property.name
+
+    fun get(inst: T) = property.get(inst as Any).let {
+        if (it is SizedIterable<*>)
+            it.toList()
+        else
+            it
+    }
+
+    override fun toString(): String = name
+
 }
