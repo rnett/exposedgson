@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.rnett.exposedgson"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     maven("https://dl.bintray.com/kotlin/exposed")

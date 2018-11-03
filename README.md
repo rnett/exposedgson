@@ -1,4 +1,4 @@
-![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Version 1.1.0](https://img.shields.io/badge/version-1.0.0-green.svg)
 
 # Exposed GSON
 
