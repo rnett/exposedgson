@@ -95,14 +95,18 @@ class ExposedTypeAdapter : TypeAdapterFactory {
                     out.name(dbIdName)
 
                     // writes the value of the id, not the id itself (the id also contains the table and other stuff)
-                    out.value(gson.toJson((id.get(value as Any) as EntityID<*>).value))
+                    val element = gson.toJsonTree((id.get(value as Any) as EntityID<*>).value)
+
+                    gson.toJson(element, out)
                 }
 
                 // add properties
                 properties.forEach {
                     out.name(it.name)
 
-                    out.value(gson.toJson(it.get(value)))
+                    val element = gson.toJsonTree(it.get(value))
+
+                    gson.toJson(element, out)
                 }
 
                 out.endObject()
