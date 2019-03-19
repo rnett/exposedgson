@@ -102,7 +102,7 @@ class ExposedTypeAdapter : TypeAdapterFactory {
                 properties.forEach {
                     out.name(it.name)
 
-                    out.jsonValue(gson.toJson(it.get(value)))
+                    out.value(gson.toJson(it.get(value)))
                 }
 
                 out.endObject()
